@@ -1,0 +1,1 @@
+export {}; // Types file cleared as specific application types are no longer needed for the Design System.
