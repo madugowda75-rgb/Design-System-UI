@@ -54,7 +54,14 @@ import {
   ProfileHeader,
   AttributeGrid,
   AttributeItem,
-  CoverImage
+  CoverImage,
+  KanbanColumn,
+  KanbanCard,
+  CommentItem,
+  FileCard,
+  CircularProgress,
+  MultiSelect,
+  PinInput
 } from './DesignSystem';
 import { Mail, Search, Save, Trash2, ArrowRight, User, Settings, Lock, Info, MoreVertical, Sliders, LayoutDashboard, FileText, Bell, Database, Palette, Type, Box, Copy, Briefcase, MapPin, Globe, CreditCard } from 'lucide-react';
 
@@ -74,6 +81,8 @@ const StyleGuide: React.FC = () => {
   const [segValue, setSegValue] = useState('month');
   const [activeFilter, setActiveFilter] = useState('All');
   const [activeSettingsTab, setActiveSettingsTab] = useState('profile');
+  const [selectedTags, setSelectedTags] = useState(['Marketing', 'Design']);
+  const [pin, setPin] = useState('');
 
   return (
     <div className="max-w-7xl mx-auto p-8 pb-32">
@@ -89,7 +98,7 @@ const StyleGuide: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Badge>v3.1.0</Badge>
+            <Badge>v3.2.0</Badge>
             <Text variant="tiny">Ready for Production</Text>
           </div>
         </div>
@@ -110,6 +119,7 @@ const StyleGuide: React.FC = () => {
             { id: 'data', label: '06. Data & Advanced' },
             { id: 'nav', label: '07. Navigation' },
             { id: 'profile', label: '08. Profile & Layouts' },
+            { id: 'workflow', label: '09. Workflow & Media' },
           ]} 
         />
       </div>
@@ -358,6 +368,12 @@ module.exports = {
                 <Textarea label="Textarea" placeholder="Enter long description..." />
                 
                 <FileUpload label="Floor Plan Upload" />
+
+                <div className="space-y-2">
+                   <Label>Pin / OTP Input</Label>
+                   <PinInput onChange={setPin} length={4} />
+                   <Text variant="small">Value: {pin}</Text>
+                </div>
               </div>
               
               <div className="space-y-6">
@@ -370,6 +386,13 @@ module.exports = {
                   label="Combobox / Autocomplete"
                   placeholder="Search countries..."
                   options={['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France']}
+                />
+                
+                <MultiSelect 
+                   label="Multi-Select Tags" 
+                   options={['Marketing', 'Development', 'Design', 'Sales', 'HR', 'Finance']}
+                   selected={selectedTags}
+                   onChange={setSelectedTags}
                 />
                 
                 <Label>Selection Controls</Label>
@@ -446,6 +469,15 @@ module.exports = {
                     <Progress value={30} />
                     <Progress value={75} />
                   </div>
+                </div>
+
+                <div>
+                   <Label>Circular Progress</Label>
+                   <div className="flex gap-8 mt-2">
+                      <CircularProgress value={25} label="Storage" />
+                      <CircularProgress value={65} label="Tasks" />
+                      <CircularProgress value={88} label="Profile" />
+                   </div>
                 </div>
 
                 <div>
@@ -783,6 +815,69 @@ module.exports = {
                 </div>
              </div>
           </section>
+        )}
+
+        {/* WORKFLOW & MEDIA (NEW) */}
+        {(activeTab === 'workflow' || activeTab === 'all') && (
+           <section className="space-y-12 animate-in fade-in">
+              <SectionHeading title="Workflow & Media" group="Application" />
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                 <div className="space-y-8">
+                    <div>
+                       <Label className="mb-4">Kanban Board Primitive</Label>
+                       <div className="flex h-[500px] border border-border bg-white overflow-x-auto">
+                          <KanbanColumn title="New Leads" count={2}>
+                             <KanbanCard title="Prestige Estates Inquiry" tags={['Hot', 'Villa']} assignee="AM" date="Oct 20" priority="high" />
+                             <KanbanCard title="John Doe - Site Visit" tags={['Warm']} />
+                          </KanbanColumn>
+                          <KanbanColumn title="In Progress" count={1}>
+                             <KanbanCard title="Price Negotiation - Sobha" tags={['Critical']} assignee="Sarah" date="Oct 18" />
+                          </KanbanColumn>
+                          <KanbanColumn title="Closed" count={0}>
+                             <div className="h-full flex items-center justify-center text-xs text-secondary">
+                                No closed deals
+                             </div>
+                          </KanbanColumn>
+                       </div>
+                    </div>
+
+                    <div>
+                       <Label className="mb-4">File List</Label>
+                       <div className="space-y-2">
+                          <FileCard name="Floor_Plan_Level_1.pdf" size="2.4 MB" type="PDF" onDownload={() => {}} />
+                          <FileCard name="Site_Images_Main.jpg" size="4.8 MB" type="JPG" onDownload={() => {}} />
+                          <FileCard name="Contract_Draft_v2.docx" size="1.2 MB" type="DOCX" onDownload={() => {}} />
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="space-y-8">
+                    <div>
+                       <Label className="mb-4">Comment Thread</Label>
+                       <Card>
+                          <div className="space-y-6">
+                             <CommentItem 
+                                author="Alex Morgan" 
+                                initials="AM" 
+                                date="2 hours ago" 
+                                content="Client requested a site visit for this weekend. I've updated the calendar." 
+                                replies={2}
+                             />
+                             <div className="pl-12 space-y-4 border-l-2 border-gray-100 ml-4">
+                                <CommentItem 
+                                   author="Sarah Smith" 
+                                   initials="SS" 
+                                   date="1 hour ago" 
+                                   content="Great, I will prepare the brochures for them." 
+                                />
+                             </div>
+                          </div>
+                       </Card>
+                    </div>
+                 </div>
+              </div>
+           </section>
         )}
 
       </div>

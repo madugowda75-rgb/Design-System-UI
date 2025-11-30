@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LucideIcon, Check, ChevronDown, X, Info, AlertTriangle, CheckCircle, Loader2, ChevronRight, ChevronLeft, MoreVertical, Plus, Minus, Upload, Search, Command, LayoutDashboard, Settings, Star, Filter, ArrowLeft, Menu } from 'lucide-react';
+import { LucideIcon, Check, ChevronDown, X, Info, AlertTriangle, CheckCircle, Loader2, ChevronRight, ChevronLeft, MoreVertical, Plus, Minus, Upload, Search, Command, LayoutDashboard, Settings, Star, Filter, ArrowLeft, Menu, File, Download, MessageSquare, Paperclip, MoreHorizontal, Calendar, Clock, User } from 'lucide-react';
 
 /**
  * CIM DESIGN SYSTEM
@@ -196,6 +196,44 @@ export const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({
   </div>
 );
 
+export const CircularProgress: React.FC<{ value: number; size?: number; strokeWidth?: number; label?: string }> = ({ value, size = 60, strokeWidth = 4, label }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg className="w-full h-full transform -rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#E5E5E5"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#111111"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className="transition-all duration-500 ease-out"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-primary">
+          {Math.round(value)}%
+        </div>
+      </div>
+      {label && <span className="mt-2 text-[10px] font-bold uppercase tracking-wider text-secondary">{label}</span>}
+    </div>
+  );
+};
+
 // --- 4. ACTIONS ---
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -287,6 +325,46 @@ export const Input: React.FC<InputProps> = ({ label, error, helper, leftIcon, ri
   </InputWrapper>
 );
 
+export const PinInput: React.FC<{ length?: number; onChange: (val: string) => void }> = ({ length = 4, onChange }) => {
+  const [values, setValues] = useState<string[]>(Array(length).fill(''));
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = (index: number, val: string) => {
+    if (val.length > 1) return; // Prevent multiple chars
+    const newValues = [...values];
+    newValues[index] = val;
+    setValues(newValues);
+    onChange(newValues.join(''));
+    
+    if (val && index < length - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !values[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      {values.map((v, i) => (
+        <input
+          key={i}
+          ref={el => { inputsRef.current[i] = el; }}
+          type="text"
+          value={v}
+          maxLength={1}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          className="w-12 h-14 text-center text-xl font-bold border border-border focus:border-primary outline-none bg-white transition-colors"
+        />
+      ))}
+    </div>
+  );
+};
+
 export const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement> & InputBaseProps> = ({ label, error, helper, className = '', required, ...props }) => (
   <InputWrapper label={label} error={error} helper={helper} required={required}>
     <textarea 
@@ -314,6 +392,70 @@ export const Select: React.FC<SelectProps> = ({ label, error, helper, options, l
     </select>
   </InputWrapper>
 );
+
+export const MultiSelect: React.FC<{
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  placeholder?: string;
+}> = ({ label, options, selected, onChange, placeholder = 'Select items...' }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleOption = (opt: string) => {
+    if (selected.includes(opt)) {
+      onChange(selected.filter(s => s !== opt));
+    } else {
+      onChange([...selected, opt]);
+    }
+  };
+
+  return (
+    <div className="relative group" ref={containerRef}>
+      <Label>{label}</Label>
+      <div 
+        className="w-full min-h-[46px] bg-white border border-border group-hover:border-gray-400 cursor-pointer px-3 py-2 flex flex-wrap gap-2 items-center transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {selected.length === 0 && <span className="text-gray-300 text-sm">{placeholder}</span>}
+        {selected.map(item => (
+          <Tag key={item} onRemove={() => toggleOption(item)}>{item}</Tag>
+        ))}
+        <div className="flex-1 text-right">
+          <ChevronDown size={14} className="ml-auto text-secondary" />
+        </div>
+      </div>
+      
+      {isOpen && (
+        <div className="absolute z-20 w-full bg-white border border-border mt-1 shadow-lg max-h-48 overflow-y-auto">
+          {options.map((opt, i) => (
+            <div 
+              key={i} 
+              className="px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-3 cursor-pointer"
+              onClick={() => toggleOption(opt)}
+            >
+              <div className={`w-4 h-4 border flex items-center justify-center ${selected.includes(opt) ? 'bg-primary border-primary text-white' : 'border-border'}`}>
+                {selected.includes(opt) && <Check size={10} />}
+              </div>
+              <span className="text-primary">{opt}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const Toggle: React.FC<{ 
   label: string; 
@@ -1197,5 +1339,114 @@ export const AttributeItem: React.FC<{ label: string; value: React.ReactNode; ic
       <dt className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">{label}</dt>
       <dd className="text-sm font-medium text-primary truncate">{value || '-'}</dd>
     </div>
+  </div>
+);
+
+// --- 11. WORKFLOW & MEDIA (NEW) ---
+
+export const KanbanColumn: React.FC<{ title: string; count?: number; children: React.ReactNode; onAdd?: () => void }> = ({ title, count, children, onAdd }) => (
+  <div className="flex-1 min-w-[300px] flex flex-col h-full bg-gray-50 border-r border-border last:border-r-0">
+    <div className="p-3 border-b border-border flex justify-between items-center bg-white sticky top-0 z-10">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-primary">{title}</span>
+        {count !== undefined && <span className="bg-gray-100 text-[10px] font-bold px-1.5 py-0.5 border border-border text-secondary">{count}</span>}
+      </div>
+      {onAdd && (
+        <button onClick={onAdd} className="text-secondary hover:text-primary transition-colors">
+          <Plus size={14} />
+        </button>
+      )}
+    </div>
+    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+      {children}
+    </div>
+  </div>
+);
+
+export const KanbanCard: React.FC<{ 
+  title: string; 
+  tags?: string[]; 
+  assignee?: string; 
+  date?: string; 
+  priority?: 'high' | 'medium' | 'low';
+}> = ({ title, tags, assignee, date, priority }) => (
+  <div className="bg-white border border-border p-3 shadow-sm hover:shadow-md hover:border-primary transition-all cursor-grab active:cursor-grabbing group">
+    <div className="flex justify-between items-start mb-2">
+      {tags && tags.length > 0 && (
+        <div className="flex gap-1 flex-wrap">
+          {tags.map((t, i) => (
+             <span key={i} className="text-[9px] uppercase font-bold bg-gray-100 px-1.5 py-0.5 text-secondary">{t}</span>
+          ))}
+        </div>
+      )}
+      {priority === 'high' && <div className="w-2 h-2 rounded-full bg-red-500" title="High Priority" />}
+    </div>
+    <h4 className="text-sm font-medium text-primary mb-3 leading-snug">{title}</h4>
+    <div className="flex justify-between items-center mt-2 pt-2 border-t border-dashed border-gray-100">
+      <div className="flex items-center gap-2">
+         {assignee ? (
+           <Avatar initials={assignee} size="sm" className="w-5 h-5 text-[9px]" />
+         ) : (
+           <div className="w-5 h-5 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
+             <User size={10} className="text-gray-300" />
+           </div>
+         )}
+      </div>
+      {date && <span className="text-[10px] text-secondary font-mono">{date}</span>}
+    </div>
+  </div>
+);
+
+export const CommentItem: React.FC<{
+  author: string;
+  avatar?: string;
+  initials?: string;
+  date: string;
+  content: string;
+  replies?: number;
+}> = ({ author, avatar, initials, date, content, replies }) => (
+  <div className="flex gap-3 group">
+    <Avatar src={avatar} initials={initials} size="md" className="mt-1" />
+    <div className="flex-1">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-primary">{author}</span>
+          <span className="text-[10px] text-secondary">{date}</span>
+        </div>
+      </div>
+      <div className="text-sm text-primary mb-2 bg-gray-50 border border-border p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl relative before:absolute before:top-0 before:-left-1.5 before:w-3 before:h-3 before:bg-gray-50 before:border-l before:border-t before:border-border before:-rotate-45 before:content-['']">
+        {content}
+      </div>
+      <div className="flex items-center gap-4">
+        <button className="text-[10px] font-bold uppercase tracking-wider text-secondary hover:text-primary">Reply</button>
+        {replies ? <span className="text-[10px] text-secondary">{replies} Replies</span> : null}
+      </div>
+    </div>
+  </div>
+);
+
+export const FileCard: React.FC<{
+  name: string;
+  size: string;
+  type: string;
+  onDownload?: () => void;
+}> = ({ name, size, type, onDownload }) => (
+  <div className="flex items-center gap-3 p-3 border border-border bg-white hover:bg-gray-50 transition-colors group">
+    <div className="w-10 h-10 bg-gray-100 border border-border flex items-center justify-center shrink-0">
+      <File size={20} className="text-secondary" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="text-sm font-medium text-primary truncate">{name}</div>
+      <div className="text-[10px] text-secondary uppercase flex items-center gap-2">
+        <span>{type}</span>
+        <span className="w-1 h-1 bg-gray-300 rounded-full" />
+        <span>{size}</span>
+      </div>
+    </div>
+    {onDownload && (
+      <button onClick={onDownload} className="text-secondary hover:text-primary p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Download size={16} />
+      </button>
+    )}
   </div>
 );
