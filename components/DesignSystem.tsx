@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { LucideIcon, Check, ChevronDown, X, Info, AlertTriangle, CheckCircle, Loader2, ChevronRight, ChevronLeft, MoreVertical, Plus, Minus, Upload, Search, Command, LayoutDashboard, Settings, Star, Filter, ArrowLeft, Menu, File, Download, MessageSquare, Paperclip, MoreHorizontal, Calendar, Clock, User } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { LucideIcon, Check, ChevronDown, X, Info, AlertTriangle, Loader2, ChevronRight, ChevronLeft, MoreVertical, Plus, Minus, Upload, Search, Calendar as CalendarIcon, Star, Download, Paperclip, MessageSquare, ArrowUp, ArrowDown, ExternalLink, Menu, Bell, User, Settings, File, ShoppingBag, Trash2, Quote, Image as ImageIcon, Play, BarChart2, Zap, CheckCircle2, Shield, Clock } from 'lucide-react';
 
 /**
  * CIM DESIGN SYSTEM
@@ -74,1379 +74,732 @@ export const Card: React.FC<{
 }> = ({ children, className = '', noPadding = false, onClick }) => (
   <div 
     onClick={onClick}
-    className={`bg-card border border-border shadow-none transition-all hover:border-gray-400 ${noPadding ? '' : 'p-5'} ${onClick ? 'cursor-pointer active:scale-[0.99]' : ''} ${className}`}
+    className={`bg-card border border-border shadow-none transition-all hover:border-gray-400 ${noPadding ? '' : 'p-5'} ${onClick ? 'cursor-pointer active:bg-gray-50' : ''} ${className}`}
   >
     {children}
   </div>
 );
 
-export const Divider: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <hr className={`border-t border-border my-6 ${className}`} />
-);
-
-export const Stack: React.FC<{ children: React.ReactNode; spacing?: number; direction?: 'row' | 'col'; className?: string }> = ({ children, spacing = 4, direction = 'col', className = '' }) => (
-  <div className={`flex ${direction === 'col' ? 'flex-col' : 'flex-row'} gap-${spacing} ${className}`}>
-    {children}
-  </div>
-);
+export const Divider: React.FC<any> = () => <hr className="border-t border-border my-6" />;
+export const Stack: React.FC<any> = ({ children, className }) => <div className={`flex flex-col gap-4 ${className}`}>{children}</div>;
 
 // --- 3. ELEMENTS ---
 
-export const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'outline' | 'success' | 'warning' | 'danger' }> = ({ children, variant = 'default' }) => {
-  const variants = {
-    default: 'bg-primary text-white border-transparent',
-    outline: 'bg-transparent text-secondary border-border',
-    success: 'bg-green-50 text-green-700 border-green-200',
-    warning: 'bg-orange-50 text-orange-700 border-orange-200',
-    danger: 'bg-red-50 text-red-700 border-red-200'
-  };
-  
-  return (
-    <span className={`
-      inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-wider border
-      ${variants[variant]}
-    `}>
-      {children}
-    </span>
-  );
-};
-
-export const Tag: React.FC<{ children: React.ReactNode; onRemove?: () => void }> = ({ children, onRemove }) => (
-  <span className="inline-flex items-center px-2 py-1 text-[10px] font-bold uppercase tracking-wider border bg-gray-50 text-primary border-border gap-1">
-    {children}
-    {onRemove && (
-      <button onClick={(e) => { e.stopPropagation(); onRemove(); }} className="hover:text-red-500">
-        <X size={10} />
-      </button>
-    )}
-  </span>
-);
-
-export const Avatar: React.FC<{ src?: string; initials?: string; size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'; className?: string }> = ({ src, initials, size = 'md', className = '' }) => {
-  const sizes = {
-    sm: "w-8 h-8 text-xs",
-    md: "w-10 h-10 text-sm",
-    lg: "w-16 h-16 text-xl",
-    xl: "w-24 h-24 text-2xl",
-    '2xl': "w-32 h-32 text-3xl"
-  };
-  
-  return (
-    <div className={`${sizes[size]} bg-gray-100 border border-border flex items-center justify-center font-bold text-primary overflow-hidden shrink-0 ${className}`}>
-      {src ? (
-        <img src={src} alt="Avatar" className="w-full h-full object-cover" />
-      ) : (
-        <span>{initials || '?'}</span>
-      )}
-    </div>
-  );
-};
-
-export const AvatarGroup: React.FC<{ 
-  users: { src?: string; initials?: string }[]; 
-  max?: number; 
-  size?: 'sm' | 'md';
-}> = ({ users, max = 3, size = 'md' }) => {
-  const displayUsers = users.slice(0, max);
-  const remaining = users.length - max;
-  const sizeClasses = size === 'sm' ? "w-8 h-8 text-xs -ml-2" : "w-10 h-10 text-sm -ml-3";
-
-  return (
-    <div className="flex items-center pl-2">
-      {displayUsers.map((u, i) => (
-        <div key={i} className={`${sizeClasses} first:ml-0 rounded-full border-2 border-white overflow-hidden relative z-10 hover:z-20 hover:scale-105 transition-all`}>
-           <Avatar src={u.src} initials={u.initials} size={size} className="w-full h-full border-none rounded-none" />
-        </div>
-      ))}
-      {remaining > 0 && (
-        <div className={`${sizeClasses} bg-gray-100 border-2 border-white flex items-center justify-center font-bold text-secondary text-[10px] z-0`}>
-          +{remaining}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const StatusDot: React.FC<{ status: 'active' | 'inactive' | 'busy' | 'warning'; label?: string }> = ({ status, label }) => {
-  const colors = {
-    active: 'bg-green-500',
-    inactive: 'bg-gray-300',
-    busy: 'bg-red-500',
-    warning: 'bg-orange-500'
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <div className="relative flex h-2.5 w-2.5">
-        {status === 'active' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
-        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${colors[status]}`}></span>
-      </div>
-      {label && <span className="text-xs font-medium text-secondary">{label}</span>}
-    </div>
-  );
-};
-
-export const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
-  <div className="group relative inline-block">
-    {children}
-    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-primary text-white text-[10px] font-bold tracking-wide whitespace-nowrap pointer-events-none z-50">
-      {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-primary"></div>
-    </div>
-  </div>
-);
-
-export const CircularProgress: React.FC<{ value: number; size?: number; strokeWidth?: number; label?: string }> = ({ value, size = 60, strokeWidth = 4, label }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (value / 100) * circumference;
-
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg className="w-full h-full transform -rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#E5E5E5"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#111111"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="transition-all duration-500 ease-out"
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-primary">
-          {Math.round(value)}%
-        </div>
-      </div>
-      {label && <span className="mt-2 text-[10px] font-bold uppercase tracking-wider text-secondary">{label}</span>}
-    </div>
-  );
-};
-
-// --- 4. ACTIONS ---
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
-  size?: 'sm' | 'md' | 'lg' | 'icon';
-  icon?: LucideIcon;
-  loading?: boolean;
-}
-
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  icon: Icon,
-  className = '',
-  loading = false,
-  disabled,
-  ...props 
-}) => {
-  const baseStyles = "inline-flex items-center justify-center font-medium transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border";
-  
-  const variants = {
-    primary: "bg-primary text-white border-primary hover:bg-black/90",
-    secondary: "bg-white text-primary border-border hover:bg-gray-50 hover:border-gray-300",
-    outline: "bg-transparent text-primary border-primary hover:bg-primary hover:text-white",
-    ghost: "bg-transparent text-secondary border-transparent hover:text-primary hover:bg-gray-100",
-    danger: "bg-red-600 text-white border-red-600 hover:bg-red-700"
-  };
-
-  const sizes = {
-    sm: "text-xs px-3 py-1.5 space-x-1.5 h-8",
-    md: "text-sm px-5 py-2.5 space-x-2 h-11",
-    lg: "text-sm px-8 py-3.5 space-x-3 h-14",
-    icon: "h-10 w-10 p-0"
-  };
-
-  return (
-    <button 
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {loading && <Loader2 size={size === 'sm' ? 12 : 16} className="animate-spin" />}
-      {!loading && Icon && <Icon size={size === 'sm' ? 14 : 16} />}
-      {children && <span>{children}</span>}
-    </button>
-  );
-};
-
-// --- 5. FORM ELEMENTS ---
-
-interface InputBaseProps {
-  label?: string;
-  error?: string;
-  helper?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  required?: boolean;
-}
-
-export const InputWrapper: React.FC<InputBaseProps & { children: React.ReactNode }> = ({ 
-  label, error, helper, leftIcon, rightIcon, children, required
-}) => (
-  <div className={`group ${error ? 'has-error' : ''}`}>
-    {label && <Label required={required}>{label}</Label>}
-    <div className={`
-      relative flex items-center bg-white border transition-colors
-      ${error ? 'border-red-500' : 'border-border group-hover:border-gray-400 group-focus-within:border-primary'}
-    `}>
-      {leftIcon && <div className="pl-3 text-secondary opacity-70 flex-shrink-0">{leftIcon}</div>}
-      <div className="flex-1 min-w-0">
-        {children}
-      </div>
-      {rightIcon && <div className="pr-3 text-icon flex-shrink-0">{rightIcon}</div>}
-    </div>
-    {error && <p className="text-[10px] text-red-500 mt-1 font-medium flex items-center gap-1"><AlertTriangle size={10} /> {error}</p>}
-    {helper && !error && <HelperText>{helper}</HelperText>}
-  </div>
-);
-
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>, InputBaseProps {}
-
-export const Input: React.FC<InputProps> = ({ label, error, helper, leftIcon, rightIcon, className = '', required, ...props }) => (
-  <InputWrapper label={label} error={error} helper={helper} leftIcon={leftIcon} rightIcon={rightIcon} required={required}>
-    <input 
-      className={`w-full bg-transparent outline-none text-primary font-medium text-sm placeholder-gray-300 px-3 py-3 ${className}`}
-      {...props}
-    />
-  </InputWrapper>
-);
-
-export const PinInput: React.FC<{ length?: number; onChange: (val: string) => void }> = ({ length = 4, onChange }) => {
-  const [values, setValues] = useState<string[]>(Array(length).fill(''));
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-
-  const handleChange = (index: number, val: string) => {
-    if (val.length > 1) return; // Prevent multiple chars
-    const newValues = [...values];
-    newValues[index] = val;
-    setValues(newValues);
-    onChange(newValues.join(''));
-    
-    if (val && index < length - 1) {
-      inputsRef.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !values[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  return (
-    <div className="flex gap-2">
-      {values.map((v, i) => (
-        <input
-          key={i}
-          ref={el => { inputsRef.current[i] = el; }}
-          type="text"
-          value={v}
-          maxLength={1}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(i, e)}
-          className="w-12 h-14 text-center text-xl font-bold border border-border focus:border-primary outline-none bg-white transition-colors"
-        />
-      ))}
-    </div>
-  );
-};
-
-export const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement> & InputBaseProps> = ({ label, error, helper, className = '', required, ...props }) => (
-  <InputWrapper label={label} error={error} helper={helper} required={required}>
-    <textarea 
-      className={`w-full bg-transparent outline-none text-primary font-medium text-sm placeholder-gray-300 px-3 py-3 min-h-[100px] resize-y ${className}`}
-      {...props}
-    />
-  </InputWrapper>
-);
-
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement>, InputBaseProps {
-  options: { label: string; value: string }[] | string[];
-}
-
-export const Select: React.FC<SelectProps> = ({ label, error, helper, options, leftIcon, className = '', required, ...props }) => (
-  <InputWrapper label={label} error={error} helper={helper} leftIcon={leftIcon} rightIcon={<ChevronDown size={14} />} required={required}>
-    <select 
-      className={`w-full bg-transparent outline-none text-primary font-medium text-sm appearance-none cursor-pointer px-3 py-3 ${className}`}
-      {...props}
-    >
-      {options.map((opt, idx) => {
-        const val = typeof opt === 'string' ? opt : opt.value;
-        const lab = typeof opt === 'string' ? opt : opt.label;
-        return <option key={idx} value={val}>{lab}</option>;
-      })}
-    </select>
-  </InputWrapper>
-);
-
-export const MultiSelect: React.FC<{
-  label: string;
-  options: string[];
-  selected: string[];
-  onChange: (selected: string[]) => void;
-  placeholder?: string;
-}> = ({ label, options, selected, onChange, placeholder = 'Select items...' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+export const Button: React.FC<any> = ({ children, variant = 'primary', size = 'md', icon: Icon, className = '', ...props }) => {
+    const base = "inline-flex items-center justify-center font-medium transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none ring-offset-background";
+    const variants: any = {
+        primary: "bg-primary text-white hover:bg-gray-800",
+        secondary: "bg-gray-100 text-primary hover:bg-gray-200 border border-transparent",
+        outline: "border border-inputBorder bg-transparent hover:bg-gray-50 text-primary",
+        ghost: "hover:bg-gray-100 text-primary",
+        danger: "bg-red-600 text-white hover:bg-red-700",
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const toggleOption = (opt: string) => {
-    if (selected.includes(opt)) {
-      onChange(selected.filter(s => s !== opt));
-    } else {
-      onChange([...selected, opt]);
-    }
-  };
-
-  return (
-    <div className="relative group" ref={containerRef}>
-      <Label>{label}</Label>
-      <div 
-        className="w-full min-h-[46px] bg-white border border-border group-hover:border-gray-400 cursor-pointer px-3 py-2 flex flex-wrap gap-2 items-center transition-colors"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {selected.length === 0 && <span className="text-gray-300 text-sm">{placeholder}</span>}
-        {selected.map(item => (
-          <Tag key={item} onRemove={() => toggleOption(item)}>{item}</Tag>
-        ))}
-        <div className="flex-1 text-right">
-          <ChevronDown size={14} className="ml-auto text-secondary" />
-        </div>
-      </div>
-      
-      {isOpen && (
-        <div className="absolute z-20 w-full bg-white border border-border mt-1 shadow-lg max-h-48 overflow-y-auto">
-          {options.map((opt, i) => (
-            <div 
-              key={i} 
-              className="px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-3 cursor-pointer"
-              onClick={() => toggleOption(opt)}
-            >
-              <div className={`w-4 h-4 border flex items-center justify-center ${selected.includes(opt) ? 'bg-primary border-primary text-white' : 'border-border'}`}>
-                {selected.includes(opt) && <Check size={10} />}
-              </div>
-              <span className="text-primary">{opt}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const Toggle: React.FC<{ 
-  label: string; 
-  checked: boolean; 
-  onChange: (checked: boolean) => void;
-  helper?: string;
-  disabled?: boolean;
-}> = ({ label, checked, onChange, helper, disabled }) => (
-  <div className={`flex items-center justify-between border border-border p-4 bg-white ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
-    <div className="flex flex-col">
-      <span className="text-[10px] uppercase tracking-widest text-secondary font-bold">{label}</span>
-      {helper && <span className="text-[10px] text-secondary mt-1">{helper}</span>}
-    </div>
-    <button 
-      onClick={() => !disabled && onChange(!checked)}
-      disabled={disabled}
-      className={`
-        relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none 
-        ${checked ? 'bg-primary' : 'bg-gray-200'}
-      `}
-    >
-      <span
-        aria-hidden="true"
-        className={`
-          pointer-events-none inline-block h-4 w-4 transform shadow ring-0 transition duration-200 ease-in-out bg-white
-          ${checked ? 'translate-x-5' : 'translate-x-0'}
-        `}
-      />
-    </button>
-  </div>
-);
-
-export const Checkbox: React.FC<{
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
-}> = ({ label, checked, onChange, disabled }) => (
-  <label className={`flex items-center gap-3 cursor-pointer group ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
-    <div className={`
-      w-5 h-5 border flex items-center justify-center transition-colors
-      ${checked ? 'bg-primary border-primary text-white' : 'bg-white border-border group-hover:border-gray-400'}
-    `}>
-      {checked && <Check size={14} strokeWidth={3} />}
-    </div>
-    <input type="checkbox" className="hidden" checked={checked} onChange={(e) => onChange(e.target.checked)} disabled={disabled} />
-    <span className="text-sm font-medium text-primary">{label}</span>
-  </label>
-);
-
-export const RadioGroup: React.FC<{
-  label: string;
-  name: string;
-  options: { label: string; value: string }[];
-  value: string;
-  onChange: (value: string) => void;
-  direction?: 'row' | 'col';
-}> = ({ label, name, options, value, onChange, direction = 'row' }) => (
-  <div className="space-y-3">
-    <Label>{label}</Label>
-    <div className={`flex ${direction === 'col' ? 'flex-col' : 'flex-wrap'} gap-3`}>
-      {options.map((opt) => {
-        const isSelected = value === opt.value;
-        return (
-          <label 
-            key={opt.value}
-            className={`
-              cursor-pointer px-4 py-3 border text-xs font-medium transition-all flex items-center space-x-2 flex-1 justify-center min-w-[100px]
-              ${isSelected ? 'bg-primary text-white border-primary' : 'bg-white text-secondary border-border hover:border-gray-400'}
-            `}
-          >
-            <input 
-              type="radio" 
-              name={name} 
-              value={opt.value} 
-              checked={isSelected}
-              onChange={() => onChange(opt.value)}
-              className="hidden"
-            />
-            {isSelected && <Check size={12} />}
-            <span>{opt.label}</span>
-          </label>
-        )
-      })}
-    </div>
-  </div>
-);
-
-export const SegmentedControl: React.FC<{
-  options: { label: string; value: string }[];
-  value: string;
-  onChange: (value: string) => void;
-}> = ({ options, value, onChange }) => (
-  <div className="bg-gray-100 p-1 flex border border-border">
-    {options.map((opt) => (
-      <button
-        key={opt.value}
-        onClick={() => onChange(opt.value)}
-        className={`
-          flex-1 py-1.5 text-xs font-bold uppercase tracking-wider transition-all
-          ${value === opt.value 
-            ? 'bg-white text-primary shadow-sm border border-gray-200' 
-            : 'text-secondary hover:text-primary'
-          }
-        `}
-      >
-        {opt.label}
-      </button>
-    ))}
-  </div>
-);
-
-export const Rating: React.FC<{
-  value: number;
-  max?: number;
-  readOnly?: boolean;
-  onChange?: (val: number) => void;
-}> = ({ value, max = 5, readOnly = false, onChange }) => (
-  <div className="flex items-center gap-1">
-    {Array.from({ length: max }).map((_, i) => {
-      const filled = i < value;
-      return (
-        <button
-          key={i}
-          disabled={readOnly}
-          onClick={() => !readOnly && onChange?.(i + 1)}
-          className={`focus:outline-none ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
-        >
-          <Star 
-            size={16} 
-            className={`${filled ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-          />
+    const sizes: any = {
+        sm: "h-8 px-3 text-xs",
+        md: "h-10 px-4 py-2 text-sm",
+        lg: "h-12 px-8 text-base",
+        icon: "h-10 w-10",
+    };
+    return (
+        <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>
+            {Icon && <Icon size={size === 'sm' ? 14 : 18} className={children ? "mr-2" : ""} />}
+            {children}
         </button>
-      );
-    })}
-  </div>
+    )
+}
+
+export const ButtonGroup: React.FC<{children: React.ReactNode}> = ({children}) => (
+    <div className="flex -space-x-px">{children}</div>
 );
 
-export const FileUpload: React.FC<{ label: string; onUpload?: (files: FileList | null) => void }> = ({ label, onUpload }) => (
-  <div>
-    <Label>{label}</Label>
-    <div className="border border-dashed border-border p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-white hover:border-primary transition-colors cursor-pointer group">
-      <Upload size={24} className="text-secondary group-hover:text-primary mb-2" />
-      <span className="text-xs font-medium text-primary">Click to upload or drag and drop</span>
-      <span className="text-[10px] text-secondary mt-1">SVG, PNG, JPG or GIF (max. 3MB)</span>
-      <input type="file" className="hidden" onChange={(e) => onUpload?.(e.target.files)} />
-    </div>
-  </div>
+export const Badge: React.FC<any> = ({ children, variant = 'default' }) => {
+    const variants: any = {
+        default: "bg-gray-100 text-primary border-gray-200",
+        success: "bg-green-50 text-green-700 border-green-200",
+        warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
+        danger: "bg-red-50 text-red-700 border-red-200",
+        outline: "border-gray-200 text-secondary"
+    };
+    return (
+        <span className={`inline-flex items-center px-2 py-0.5 text-xs font-medium border ${variants[variant]}`}>
+            {children}
+        </span>
+    );
+};
+
+export const Tag: React.FC<any> = ({ children, onRemove, variant = 'default', icon: Icon }) => (
+    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium border border-gray-200 bg-white text-primary`}>
+        {Icon && <Icon size={12} className="mr-1" />}
+        {children}
+        {onRemove && <button onClick={onRemove} className="ml-1 hover:text-red-500"><X size={12} /></button>}
+    </span>
 );
 
-export const Slider: React.FC<{ 
-  label: string; 
-  value: number; 
-  min: number; 
-  max: number; 
-  onChange: (val: number) => void;
-  formatValue?: (val: number) => string;
-}> = ({ label, value, min, max, onChange, formatValue }) => (
-  <div className="space-y-3">
-    <div className="flex justify-between">
-      <Label>{label}</Label>
-      <span className="text-xs font-bold text-primary">{formatValue ? formatValue(value) : value}</span>
-    </div>
-    <input 
-      type="range" 
-      min={min} 
-      max={max} 
-      value={value} 
-      onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full h-1 bg-gray-200 appearance-none cursor-pointer accent-primary"
-    />
-  </div>
-);
-
-export const Combobox: React.FC<{
-  label: string;
-  options: string[];
-  placeholder?: string;
-}> = ({ label, options, placeholder }) => {
-  const [query, setQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  
-  const filtered = options.filter(opt => opt.toLowerCase().includes(query.toLowerCase()));
-
-  return (
-    <div className="relative">
-      <Input 
-        label={label} 
-        value={query} 
-        onChange={(e) => { setQuery(e.target.value); setIsOpen(true); }}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-        placeholder={placeholder}
-        rightIcon={<ChevronDown size={14} />}
-      />
-      {isOpen && filtered.length > 0 && (
-        <div className="absolute z-10 w-full bg-white border border-border mt-1 shadow-lg max-h-48 overflow-y-auto">
-          {filtered.map((opt, i) => (
-            <button 
-              key={i} 
-              className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 text-primary"
-              onClick={() => { setQuery(opt); setIsOpen(false); }}
-            >
-              {opt}
-            </button>
-          ))}
+export const Avatar: React.FC<any> = ({ src, initials, size = 'md', tooltipText }) => {
+    const sizes: any = { sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-16 w-16 text-xl' };
+    return (
+        <div className={`relative inline-flex items-center justify-center overflow-hidden bg-gray-100 rounded-none border border-gray-200 ${sizes[size]}`} title={tooltipText}>
+            {src ? <img src={src} className="h-full w-full object-cover" alt="" /> : <span className="font-medium text-gray-600">{initials}</span>}
         </div>
-      )}
-    </div>
-  );
+    );
 };
+export const AvatarGroup: React.FC<any> = ({ children }) => <div className="flex -space-x-2">{children}</div>;
 
-export const FilterGroup: React.FC<{
-  items: string[];
-  activeItem: string;
-  onChange: (item: string) => void;
-}> = ({ items, activeItem, onChange }) => (
-  <div className="flex flex-wrap gap-2">
-    {items.map(item => (
-      <button
-        key={item}
-        onClick={() => onChange(item)}
-        className={`
-          px-3 py-1 text-xs font-bold border transition-colors
-          ${activeItem === item 
-            ? 'bg-primary text-white border-primary' 
-            : 'bg-white text-secondary border-border hover:border-gray-400'
-          }
-        `}
-      >
-        {item}
-      </button>
-    ))}
-  </div>
-);
-
-
-// --- 6. FEEDBACK ---
-
-export const Alert: React.FC<{ 
-  title: string; 
-  message?: string; 
-  variant?: 'info' | 'success' | 'warning' | 'error';
-}> = ({ title, message, variant = 'info' }) => {
-  const styles = {
-    info: "bg-blue-50 border-blue-100 text-blue-900 icon-blue-500",
-    success: "bg-green-50 border-green-100 text-green-900 icon-green-500",
-    warning: "bg-orange-50 border-orange-100 text-orange-900 icon-orange-500",
-    error: "bg-red-50 border-red-100 text-red-900 icon-red-500"
-  };
-
-  const icons = {
-    info: Info,
-    success: CheckCircle,
-    warning: AlertTriangle,
-    error: AlertTriangle
-  };
-
-  const Icon = icons[variant];
-
-  return (
-    <div className={`border px-4 py-3 flex gap-3 ${styles[variant].split(' ').slice(0,3).join(' ')}`}>
-      <Icon className={`shrink-0 mt-0.5 ${styles[variant].split(' ')[3].replace('icon-', 'text-')}`} size={18} />
-      <div>
-        <h4 className="text-sm font-bold">{title}</h4>
-        {message && <p className="text-xs mt-1 opacity-90">{message}</p>}
-      </div>
+export const StatusDot: React.FC<any> = ({ status, label }) => (
+    <div className="flex items-center gap-2">
+        <span className={`h-2 w-2 rounded-full ${status === 'active' ? 'bg-green-500' : 'bg-gray-300'}`} />
+        {label && <span className="text-xs text-secondary">{label}</span>}
     </div>
-  );
-};
+);
 
-export const Toast: React.FC<{ title: string; message: string; type?: 'success' | 'error' | 'default'; onClose: () => void }> = ({ title, message, type = 'default', onClose }) => {
-  const styles = {
-    default: "border-primary bg-primary text-white",
-    success: "border-green-600 bg-green-600 text-white",
-    error: "border-red-600 bg-red-600 text-white"
-  };
-
-  return (
-    <div className={`fixed bottom-6 right-6 z-50 w-80 p-4 border shadow-lg flex justify-between items-start animate-in slide-in-from-bottom-4 duration-300 ${styles[type]}`}>
-      <div>
-        <h4 className="text-sm font-bold">{title}</h4>
-        <p className="text-xs mt-1 opacity-90">{message}</p>
-      </div>
-      <button onClick={onClose} className="opacity-70 hover:opacity-100"><X size={16} /></button>
+export const Tooltip: React.FC<any> = ({ children, text }) => (
+    <div className="group relative inline-block">
+        {children}
+        <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs whitespace-nowrap z-50 pointer-events-none">
+            {text}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black" />
+        </div>
     </div>
-  );
-};
+);
 
-export const Progress: React.FC<{ value: number; max?: number; className?: string }> = ({ value, max = 100, className = '' }) => {
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
-  return (
-    <div className={`w-full bg-gray-100 border border-border h-2 ${className}`}>
-      <div 
-        className="bg-primary h-full transition-all duration-300 ease-out" 
-        style={{ width: `${percentage}%` }}
-      />
+// --- 4. FORMS ---
+
+export const Input: React.FC<any> = ({ label, leftIcon, rightIcon, error, className, ...props }) => (
+    <div className={`space-y-1 ${className}`}>
+        {label && <Label>{label}</Label>}
+        <div className="relative">
+            {leftIcon && <div className="absolute left-3 top-2.5 text-icon">{leftIcon}</div>}
+            <input className={`flex h-10 w-full border border-inputBorder bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50 ${leftIcon ? 'pl-9' : ''} ${error ? 'border-red-500' : ''}`} {...props} />
+        </div>
+        {error && <HelperText variant="error">{error}</HelperText>}
     </div>
-  );
-};
-
-export const Spinner: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = '' }) => (
-  <Loader2 size={size} className={`animate-spin text-primary ${className}`} />
 );
 
-export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`animate-pulse bg-gray-200 ${className}`}></div>
-);
-
-// --- 7. NAVIGATION ---
-
-export const Tabs: React.FC<{
-  items: { id: string; label: string }[];
-  activeId: string;
-  onChange: (id: string) => void;
-}> = ({ items, activeId, onChange }) => (
-  <div className="flex border-b border-border">
-    {items.map(item => (
-      <button
-        key={item.id}
-        onClick={() => onChange(item.id)}
-        className={`
-          px-6 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors
-          ${activeId === item.id 
-            ? 'border-primary text-primary' 
-            : 'border-transparent text-secondary hover:text-primary hover:border-gray-300'
-          }
-        `}
-      >
-        {item.label}
-      </button>
-    ))}
-  </div>
-);
-
-export const Breadcrumb: React.FC<{ items: string[] }> = ({ items }) => (
-  <div className="flex items-center text-[10px] uppercase tracking-widest text-secondary font-bold">
-    {items.map((item, index) => (
-      <React.Fragment key={index}>
-        {index > 0 && <span className="mx-2 text-gray-300">/</span>}
-        <span className={index === items.length - 1 ? 'text-primary' : ''}>{item}</span>
-      </React.Fragment>
-    ))}
-  </div>
-);
-
-export const Stepper: React.FC<{ steps: string[]; currentStep: number }> = ({ steps, currentStep }) => (
-  <div className="flex items-center w-full">
-    {steps.map((step, index) => {
-      const isCompleted = index < currentStep;
-      const isCurrent = index === currentStep;
-      
-      return (
-        <React.Fragment key={index}>
-          <div className="flex items-center gap-2">
-            <div className={`
-              w-6 h-6 flex items-center justify-center text-[10px] font-bold border transition-colors
-              ${isCompleted ? 'bg-primary border-primary text-white' : ''}
-              ${isCurrent ? 'bg-white border-primary text-primary' : ''}
-              ${!isCompleted && !isCurrent ? 'bg-white border-gray-200 text-gray-300' : ''}
-            `}>
-              {isCompleted ? <Check size={12} /> : index + 1}
-            </div>
-            <span className={`
-              text-xs font-bold uppercase tracking-wider
-              ${isCompleted || isCurrent ? 'text-primary' : 'text-gray-300'}
-            `}>
-              {step}
-            </span>
-          </div>
-          {index < steps.length - 1 && (
-            <div className={`flex-1 h-px mx-4 ${isCompleted ? 'bg-primary' : 'bg-gray-200'}`} />
-          )}
-        </React.Fragment>
-      );
-    })}
-  </div>
-);
-
-export const Pagination: React.FC<{ 
-  currentPage: number; 
-  totalPages: number; 
-  onPageChange: (page: number) => void;
-}> = ({ currentPage, totalPages, onPageChange }) => (
-  <div className="flex items-center space-x-2">
-    <Button 
-      variant="outline" 
-      size="icon" 
-      className="h-8 w-8"
-      disabled={currentPage === 1}
-      onClick={() => onPageChange(currentPage - 1)}
-    >
-      <ChevronLeft size={14} />
-    </Button>
-    <div className="px-2 text-xs font-medium text-secondary">
-      Page <span className="text-primary font-bold">{currentPage}</span> of {totalPages}
-    </div>
-    <Button 
-      variant="outline" 
-      size="icon" 
-      className="h-8 w-8"
-      disabled={currentPage === totalPages}
-      onClick={() => onPageChange(currentPage + 1)}
-    >
-      <ChevronRight size={14} />
-    </Button>
-  </div>
-);
-
-export const SideNav: React.FC<{
-  items: { icon: LucideIcon; label: string; active?: boolean }[];
-}> = ({ items }) => (
-  <nav className="w-64 bg-white border-r border-border h-full flex flex-col p-4">
+export const Select: React.FC<any> = ({ label, options, error, ...props }) => (
     <div className="space-y-1">
-      {items.map((item, idx) => (
-        <button
-          key={idx}
-          className={`
-            w-full flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors
-            ${item.active 
-              ? 'bg-primary text-white' 
-              : 'text-secondary hover:bg-gray-50 hover:text-primary'
-            }
-          `}
+        {label && <Label>{label}</Label>}
+        <div className="relative">
+            <select className="flex h-10 w-full appearance-none border border-inputBorder bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" {...props}>
+                {options.map((opt: any) => <option key={opt}>{opt}</option>)}
+            </select>
+            <ChevronDown className="absolute right-3 top-3 h-4 w-4 opacity-50 pointer-events-none" />
+        </div>
+    </div>
+);
+
+export const MultiSelect: React.FC<any> = ({ label, options, selected, onChange }) => (
+    <div className="space-y-1">
+        {label && <Label>{label}</Label>}
+        <div className="flex flex-wrap gap-2 p-2 border border-inputBorder min-h-[42px] bg-white">
+            {selected.map((s: string) => (
+                <span key={s} className="bg-gray-100 text-xs px-2 py-1 flex items-center gap-1">
+                    {s} <button onClick={() => onChange(selected.filter((i:any) => i !== s))}><X size={12}/></button>
+                </span>
+            ))}
+            <button className="text-xs text-secondary hover:text-primary px-1">+ Add</button>
+        </div>
+    </div>
+);
+
+export const Textarea: React.FC<any> = ({ label, ...props }) => (
+    <div className="space-y-1">
+        {label && <Label>{label}</Label>}
+        <textarea className="flex min-h-[80px] w-full border border-inputBorder bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" {...props} />
+    </div>
+);
+
+export const Toggle: React.FC<any> = ({ label, checked, onChange }) => (
+    <div className="flex items-center justify-between">
+        {label && <span className="text-sm font-medium">{label}</span>}
+        <button 
+            role="switch" 
+            aria-checked={checked}
+            onClick={() => onChange(!checked)}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${checked ? 'bg-primary' : 'bg-gray-200'}`}
         >
-          <item.icon size={16} />
-          {item.label}
+            <span className={`pointer-events-none block h-4 w-4 bg-white shadow-lg ring-0 transition-transform ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
         </button>
-      ))}
     </div>
-  </nav>
 );
 
-export const NavBar: React.FC<{
-  logo: React.ReactNode;
-  items: { label: string; active?: boolean; onClick?: () => void }[];
-  actions?: React.ReactNode;
-  className?: string;
-}> = ({ logo, items, actions, className = '' }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export const Checkbox: React.FC<any> = ({ label, checked, onChange }) => (
+    <div className="flex items-center space-x-2">
+        <button 
+            role="checkbox"
+            aria-checked={checked}
+            onClick={() => onChange(!checked)}
+            className={`peer h-4 w-4 shrink-0 border border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 ${checked ? 'bg-primary text-white' : 'bg-white'}`}
+        >
+            {checked && <Check className="h-3 w-3 mx-auto" />}
+        </button>
+        {label && <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{label}</label>}
+    </div>
+);
 
-  return (
-    <header className={`bg-white border-b border-border ${className}`}>
-      <div className="flex items-center justify-between px-6 h-16">
-        <div className="flex items-center gap-8">
-          <div className="flex-shrink-0">
-            {logo}
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            {items.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={item.onClick}
-                className={`text-sm font-medium transition-colors ${
-                  item.active ? 'text-primary font-bold' : 'text-secondary hover:text-primary'
-                }`}
-              >
-                {item.label}
-              </button>
+export const RadioGroup: React.FC<any> = ({ label, options, value, onChange, name }) => (
+    <div className="space-y-2">
+        {label && <Label>{label}</Label>}
+        <div className="space-y-1">
+            {options.map((opt: any) => (
+                <div key={opt.value} className="flex items-center space-x-2">
+                    <input type="radio" id={opt.value} name={name} value={opt.value} checked={value === opt.value} onChange={() => onChange(opt.value)} className="text-primary focus:ring-primary" />
+                    <label htmlFor={opt.value} className="text-sm">{opt.label}</label>
+                </div>
             ))}
-          </nav>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-4">{actions}</div>
-          <button className="md:hidden text-primary" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+    </div>
+);
+
+export const FileUpload: React.FC<any> = ({ label }) => (
+    <div className="space-y-1">
+        {label && <Label>{label}</Label>}
+        <div className="border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer">
+            <Upload className="h-8 w-8 text-gray-400 mb-2" />
+            <span className="text-sm text-secondary">Click to upload or drag and drop</span>
         </div>
-      </div>
-      
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-white px-4 py-4 space-y-4">
-          <nav className="flex flex-col gap-3">
-             {items.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => { item.onClick?.(); setMobileMenuOpen(false); }}
-                className={`text-sm font-medium text-left py-2 ${
-                  item.active ? 'text-primary font-bold' : 'text-secondary'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-          {actions && <div className="pt-4 border-t border-border flex flex-col gap-3">{actions}</div>}
+    </div>
+);
+
+export const Slider: React.FC<any> = ({ label, value, onChange, min, max, formatValue }) => (
+    <div className="space-y-2">
+        <div className="flex justify-between">
+            {label && <Label>{label}</Label>}
+            <span className="text-xs font-mono">{formatValue ? formatValue(value) : value}</span>
         </div>
-      )}
-    </header>
-  );
+        <input 
+            type="range" 
+            min={min} 
+            max={max} 
+            value={value} 
+            onChange={(e) => onChange(parseInt(e.target.value))} 
+            className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+        />
+    </div>
+);
+
+export const Combobox: React.FC<any> = (props) => <Select {...props} />;
+export const PinInput: React.FC<any> = () => null;
+export const Calendar: React.FC<any> = () => null;
+
+// --- 5. FEEDBACK ---
+
+export const Alert: React.FC<any> = ({ title, message, variant = 'info' }) => {
+    const styles: any = {
+        info: "bg-blue-50 border-blue-200 text-blue-900",
+        success: "bg-green-50 border-green-200 text-green-900",
+        warning: "bg-yellow-50 border-yellow-200 text-yellow-900",
+        error: "bg-red-50 border-red-200 text-red-900",
+    };
+    return (
+        <div className={`p-4 border flex gap-3 ${styles[variant]}`}>
+            <Info size={20} className="shrink-0" />
+            <div>
+                <h5 className="font-medium text-sm">{title}</h5>
+                <p className="text-sm opacity-90">{message}</p>
+            </div>
+        </div>
+    );
 };
 
-export const VerticalNav: React.FC<{
-  items: { id: string; label: string; icon?: LucideIcon; count?: number }[];
-  activeId: string;
-  onChange: (id: string) => void;
-}> = ({ items, activeId, onChange }) => (
-  <div className="w-full flex flex-col bg-white border border-border">
-    {items.map((item) => (
-      <button
-        key={item.id}
-        onClick={() => onChange(item.id)}
-        className={`
-          flex items-center justify-between px-4 py-3 text-sm font-medium transition-all border-l-2
-          ${activeId === item.id 
-            ? 'border-primary bg-gray-50 text-primary' 
-            : 'border-transparent text-secondary hover:bg-gray-50 hover:text-primary'
-          }
-        `}
-      >
-        <div className="flex items-center gap-3">
-          {item.icon && <item.icon size={16} className={activeId === item.id ? 'text-primary' : 'text-icon'} />}
-          <span>{item.label}</span>
+export const Toast: React.FC<any> = ({ title, message, type, onClose, action }) => (
+    <div className="fixed bottom-4 right-4 z-50 w-80 bg-white border border-gray-200 shadow-lg p-4 animate-in slide-in-from-bottom-5">
+        <div className="flex justify-between items-start">
+            <div className="flex gap-3">
+                {type === 'success' ? <CheckCircle2 className="text-green-500" size={20}/> : <AlertTriangle className="text-red-500" size={20}/>}
+                <div>
+                    <h5 className="font-medium text-sm">{title}</h5>
+                    <p className="text-xs text-secondary mt-1">{message}</p>
+                </div>
+            </div>
+            <button onClick={onClose}><X size={16} className="text-gray-400" /></button>
         </div>
-        {item.count !== undefined && (
-          <span className={`text-[10px] font-bold px-1.5 py-0.5 border ${activeId === item.id ? 'bg-white border-gray-200' : 'bg-gray-100 border-transparent'}`}>
-            {item.count}
-          </span>
+        {action && (
+            <div className="mt-3 flex justify-end">
+                <Button size="sm" variant="outline" onClick={action.onClick}>{action.label}</Button>
+            </div>
         )}
-      </button>
-    ))}
-  </div>
+    </div>
 );
 
-export const CommandPalette: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] px-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-white shadow-2xl border border-border flex flex-col animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center px-4 py-3 border-b border-border">
-          <Search size={18} className="text-secondary mr-3" />
-          <input 
-            className="flex-1 bg-transparent outline-none text-sm placeholder-gray-400"
-            placeholder="Type a command or search..."
-            autoFocus
-          />
-          <Kbd>ESC</Kbd>
+export const NotificationList: React.FC<any> = ({ children }) => <div className="divide-y divide-border border border-border bg-white">{children}</div>;
+export const NotificationItem: React.FC<any> = ({ title, message, time, read, avatar }) => (
+    <div className={`p-4 flex gap-3 ${read ? 'bg-white' : 'bg-blue-50/50'}`}>
+        <div className="shrink-0">
+            {avatar ? <img src={avatar} className="h-8 w-8 bg-gray-200" /> : <div className="h-8 w-8 bg-gray-200 flex items-center justify-center"><Bell size={14}/></div>}
         </div>
-        <div className="max-h-64 overflow-y-auto p-2">
-           <div className="px-2 py-1.5 text-[10px] font-bold text-secondary uppercase tracking-widest">Suggestions</div>
-           <button className="w-full text-left px-2 py-2 text-sm text-primary hover:bg-gray-50 flex items-center gap-2">
-              <Command size={14} className="text-secondary"/> Dashboard
-           </button>
-           <button className="w-full text-left px-2 py-2 text-sm text-primary hover:bg-gray-50 flex items-center gap-2">
-              <Command size={14} className="text-secondary"/> Settings
-           </button>
+        <div className="flex-1">
+            <p className="text-sm font-medium">{title}</p>
+            <p className="text-xs text-secondary mt-0.5">{message}</p>
+            <p className="text-[10px] text-gray-400 mt-2">{time}</p>
         </div>
-      </div>
+        {!read && <div className="h-2 w-2 bg-blue-500 rounded-full mt-1" />}
     </div>
-  );
+);
+
+export const Progress: React.FC<any> = ({ value }) => (
+    <div className="h-2 w-full bg-gray-100 overflow-hidden">
+        <div className="h-full bg-primary transition-all duration-300" style={{ width: `${value}%` }} />
+    </div>
+);
+
+export const CircularProgress: React.FC<any> = ({ value, size = 60, strokeWidth = 4, label }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (value / 100) * circumference;
+    return (
+        <div className="flex flex-col items-center">
+            <div className="relative" style={{ width: size, height: size }}>
+                <svg className="w-full h-full -rotate-90">
+                    <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#e5e5e5" strokeWidth={strokeWidth} />
+                    <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} className="text-primary transition-all duration-300" />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">{value}%</div>
+            </div>
+            {label && <span className="mt-2 text-xs text-secondary">{label}</span>}
+        </div>
+    );
 };
 
+export const Skeleton: React.FC<any> = ({ className }) => <div className={`animate-pulse bg-gray-200 ${className}`} />;
+export const Spinner: React.FC<any> = ({ size = 24 }) => <Loader2 className="animate-spin text-primary" size={size} />;
+
+// --- 6. NAVIGATION ---
+
+export const Tabs: React.FC<any> = () => null;
+export const SidebarTab: React.FC<any> = ({ label, icon: Icon, active, onClick }) => (
+    <button onClick={onClick} className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors border-l-2 ${active ? 'border-primary bg-gray-50 text-primary' : 'border-transparent text-secondary hover:bg-gray-50 hover:text-primary'}`}>
+        {Icon && <Icon size={18} />}
+        <span>{label}</span>
+    </button>
+);
+
+export const NavItem: React.FC<any> = () => null;
+export const Breadcrumb: React.FC<any> = () => null;
+export const Stepper: React.FC<any> = () => null;
+export const Pagination: React.FC<any> = () => null;
+export const SideNav: React.FC<any> = () => null;
+export const VerticalNav: React.FC<any> = () => null;
+
+export const NavBar: React.FC<any> = ({ logo, items, actions }) => (
+    <div className="h-16 border-b border-border bg-white px-6 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+            {logo}
+            <div className="flex gap-6">
+                {items.map((i: any, idx: number) => (
+                    <a key={idx} href="#" className={`text-sm font-medium ${i.active ? 'text-primary' : 'text-secondary hover:text-primary'}`}>{i.label}</a>
+                ))}
+            </div>
+        </div>
+        <div>{actions}</div>
+    </div>
+);
+
+export const CommandPalette: React.FC<any> = ({ isOpen, onClose }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-black/20 backdrop-blur-sm">
+            <div className="w-full max-w-lg bg-white shadow-2xl border border-gray-200">
+                <div className="flex items-center border-b border-gray-100 px-3">
+                    <Search className="h-4 w-4 text-gray-400 mr-2" />
+                    <input autoFocus placeholder="Type a command or search..." className="flex-1 h-12 text-sm outline-none" />
+                    <button onClick={onClose}><span className="text-xs border px-1.5 py-0.5 bg-gray-50">ESC</span></button>
+                </div>
+                <div className="py-2">
+                    <div className="px-3 py-2 text-xs font-bold text-gray-400">SUGGESTIONS</div>
+                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center"><File className="mr-2 h-4 w-4 text-gray-400"/> Search Files</button>
+                    <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center"><Settings className="mr-2 h-4 w-4 text-gray-400"/> Settings</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// --- 7. OVERLAYS ---
+
+export const Dialog: React.FC<any> = ({ isOpen, onClose, title, children, footer }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white w-full max-w-md shadow-2xl border border-gray-200 animate-in zoom-in-95">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 className="font-medium text-lg">{title}</h3>
+                    <button onClick={onClose}><X size={18} className="text-gray-400 hover:text-black" /></button>
+                </div>
+                <div className="p-6">{children}</div>
+                {footer && <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">{footer}</div>}
+            </div>
+        </div>
+    );
+}
+
+export const Drawer: React.FC<any> = ({ isOpen, onClose, title, children, footer }) => {
+    return (
+        <div className={`fixed inset-0 z-50 transition-all ${isOpen ? 'visible' : 'invisible'}`}>
+            <div className={`absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`} onClick={onClose} />
+            <div className={`absolute right-0 top-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="h-full flex flex-col">
+                    <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                        <h3 className="font-medium text-lg">{title}</h3>
+                        <button onClick={onClose}><X size={18} /></button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-6">{children}</div>
+                    {footer && <div className="p-6 border-t border-gray-100">{footer}</div>}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export const FullPageModal: React.FC<any> = ({ isOpen, onClose, title, children, actions }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-50 bg-bg overflow-y-auto animate-in slide-in-from-bottom-10">
+            <div className="sticky top-0 z-10 bg-white border-b border-border px-8 h-16 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <button onClick={onClose}><X size={24} className="text-secondary hover:text-primary" /></button>
+                    <h2 className="text-lg font-medium">{title}</h2>
+                </div>
+                <div>{actions}</div>
+            </div>
+            <div className="max-w-5xl mx-auto p-8">{children}</div>
+        </div>
+    );
+}
+
+export const Accordion: React.FC<any> = ({ title, children }) => {
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="border border-border bg-white mb-[-1px]">
+            <button className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50" onClick={() => setOpen(!open)}>
+                <span className="font-medium">{title}</span>
+                {open ? <Minus size={16} /> : <Plus size={16} />}
+            </button>
+            {open && <div className="px-6 pb-6 pt-2 border-t border-gray-100 animate-in slide-in-from-top-2">{children}</div>}
+        </div>
+    );
+}
+
+export const Dropdown: React.FC<any> = ({ trigger, items }) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const handleClickOutside = (event: any) => { if (ref.current && !ref.current.contains(event.target)) setOpen(false); };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [ref]);
+
+    return (
+        <div className="relative inline-block" ref={ref}>
+            <div onClick={() => setOpen(!open)}>{trigger}</div>
+            {open && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg z-50 py-1">
+                    {items.map((item: any, idx: number) => (
+                        <button key={idx} onClick={() => { item.onClick(); setOpen(false); }} className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${item.danger ? 'text-red-600' : 'text-primary'}`}>
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 // --- 8. DATA DISPLAY ---
 
-export const Table: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`w-full overflow-x-auto border border-border bg-white ${className}`}>
-    <table className="w-full text-left border-collapse">{children}</table>
-  </div>
-);
+export const Table: React.FC<any> = ({ children }) => <table className="w-full text-left text-sm">{children}</table>;
+export const Thead: React.FC<any> = ({ children }) => <thead className="bg-gray-50 border-b border-gray-200">{children}</thead>;
+export const Tbody: React.FC<any> = ({ children }) => <tbody className="divide-y divide-gray-100">{children}</tbody>;
+export const Tr: React.FC<any> = ({ children }) => <tr>{children}</tr>;
+export const Th: React.FC<any> = ({ children }) => <th className="px-4 py-3 font-medium text-secondary text-xs uppercase tracking-wider">{children}</th>;
+export const Td: React.FC<any> = ({ children }) => <td className="px-4 py-3 text-primary">{children}</td>;
 
-export const Thead: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <thead className="bg-gray-50 border-b border-border">{children}</thead>
-);
-
-export const Tbody: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <tbody>{children}</tbody>
-);
-
-export const Tr: React.FC<{ children: React.ReactNode; className?: string; onClick?: () => void }> = ({ children, className = '', onClick }) => (
-  <tr 
-    onClick={onClick}
-    className={`border-b border-border last:border-0 hover:bg-gray-50 transition-colors ${onClick ? 'cursor-pointer' : ''} ${className}`}
-  >
-    {children}
-  </tr>
-);
-
-export const Th: React.FC<{ children: React.ReactNode; align?: 'left' | 'center' | 'right' }> = ({ children, align = 'left' }) => (
-  <th className={`px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary whitespace-nowrap text-${align}`}>{children}</th>
-);
-
-export const Td: React.FC<{ children: React.ReactNode; align?: 'left' | 'center' | 'right'; className?: string }> = ({ children, align = 'left', className = '' }) => (
-  <td className={`px-4 py-3 text-sm text-primary text-${align} ${className}`}>{children}</td>
-);
-
-export const DescriptionList: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <dl className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border">
-    {children}
-  </dl>
-);
-
-export const DescriptionListItem: React.FC<{ label: string; value: React.ReactNode; fullWidth?: boolean }> = ({ label, value, fullWidth }) => (
-  <div className={`bg-white p-4 hover:bg-gray-50 transition-colors ${fullWidth ? 'md:col-span-2' : ''}`}>
-    <dt className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">{label}</dt>
-    <dd className="text-sm font-medium text-primary break-words">{value || '-'}</dd>
-  </div>
-);
-
-export const Timeline: React.FC<{ items: { title: string; date: string; description?: string; status?: 'completed' | 'current' | 'pending' }[] }> = ({ items }) => (
-  <div className="space-y-0">
-    {items.map((item, idx) => (
-      <div key={idx} className="flex gap-4 group">
-        <div className="flex flex-col items-center">
-          <div className={`
-            w-3 h-3 border my-1.5 flex-shrink-0
-            ${item.status === 'completed' ? 'bg-primary border-primary' : ''}
-            ${item.status === 'current' ? 'bg-white border-primary animate-pulse' : ''}
-            ${item.status === 'pending' || !item.status ? 'bg-white border-gray-300' : ''}
-          `} />
-          {idx !== items.length - 1 && <div className="w-px h-full bg-border group-hover:bg-gray-300 transition-colors" />}
+export const DataGrid: React.FC<any> = ({ columns, data }) => (
+    <div className="border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+            <Table>
+                <Thead>
+                    <Tr>{columns.map((col: any) => <Th key={col.key}>{col.label}</Th>)}</Tr>
+                </Thead>
+                <Tbody>
+                    {data.map((row: any, i: number) => (
+                        <Tr key={i}>
+                            {columns.map((col: any) => <Td key={col.key}>{col.render ? col.render(row[col.key], row) : row[col.key]}</Td>)}
+                        </Tr>
+                    ))}
+                </Tbody>
+            </Table>
         </div>
-        <div className="pb-8">
-          <div className="flex items-center gap-2 mb-1">
-             <span className={`text-sm font-bold ${item.status === 'pending' ? 'text-secondary' : 'text-primary'}`}>{item.title}</span>
-             <span className="text-[10px] text-secondary border border-border px-1 bg-gray-50">{item.date}</span>
-          </div>
-          {item.description && <p className="text-xs text-secondary max-w-md">{item.description}</p>}
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-export const Statistic: React.FC<{ label: string; value: string; trend?: string; trendUp?: boolean }> = ({ label, value, trend, trendUp }) => (
-  <div className="border border-border p-5 bg-white">
-    <div className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">{label}</div>
-    <div className="flex items-end gap-3">
-      <div className="text-2xl font-light text-primary">{value}</div>
-      {trend && (
-        <div className={`text-xs font-bold mb-1 ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
-          {trend}
-        </div>
-      )}
     </div>
-  </div>
 );
 
-export const EmptyState: React.FC<{ icon: LucideIcon; title: string; description: string; action?: React.ReactNode }> = ({ icon: Icon, title, description, action }) => (
-  <div className="flex flex-col items-center justify-center text-center p-12 border border-dashed border-border bg-gray-50/50">
-    <div className="w-12 h-12 bg-white border border-border flex items-center justify-center mb-4">
-      <Icon className="text-secondary" size={24} />
+export const DescriptionList: React.FC<any> = ({ children }) => <dl className="divide-y divide-border border-t border-b border-border">{children}</dl>;
+export const DescriptionListItem: React.FC<any> = ({ label, value }) => (
+    <div className="grid grid-cols-3 gap-4 py-3">
+        <dt className="text-sm font-medium text-secondary">{label}</dt>
+        <dd className="text-sm text-primary col-span-2">{value}</dd>
     </div>
-    <h3 className="text-sm font-bold text-primary mb-1">{title}</h3>
-    <p className="text-xs text-secondary max-w-xs mb-6">{description}</p>
-    {action}
-  </div>
 );
 
-// --- 9. INTERACTIVE & OVERLAYS ---
-
-export const Accordion: React.FC<{ title: string; children: React.ReactNode; defaultOpen?: boolean }> = ({ title, children, defaultOpen = false }) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border border-border bg-white">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-      >
-        <span className="text-sm font-bold text-primary">{title}</span>
-        <div className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-           {isOpen ? <Minus size={14} /> : <Plus size={14} />}
-        </div>
-      </button>
-      {isOpen && (
-        <div className="px-4 py-4 border-t border-border animate-in fade-in slide-in-from-top-2 duration-200">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const Dialog: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-}> = ({ isOpen, onClose, title, children, footer }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative bg-bg w-full max-w-lg shadow-2xl border border-border animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-border">
-          <h2 className="text-lg font-medium text-primary">{title}</h2>
-          <button onClick={onClose} className="text-secondary hover:text-primary"><X size={20}/></button>
-        </div>
-        <div className="p-6 bg-white max-h-[70vh] overflow-y-auto">
-          {children}
-        </div>
-        {footer && (
-          <div className="px-6 py-4 bg-gray-50 border-t border-border flex justify-end gap-3">
-            {footer}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export const FullPageModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  actions?: React.ReactNode;
-}> = ({ isOpen, onClose, title, children, actions }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 bg-bg animate-in slide-in-from-bottom duration-300 flex flex-col">
-      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-border shrink-0">
+export const StackedList: React.FC<any> = ({ children }) => <ul className="divide-y divide-border border border-border bg-white">{children}</ul>;
+export const StackedListItem: React.FC<any> = ({ leading, title, description, meta, trailing }) => (
+    <li className="flex items-center justify-between p-4 hover:bg-gray-50">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={onClose} 
-            className="w-8 h-8 flex items-center justify-center border border-transparent hover:border-border hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <h2 className="text-xl font-medium text-primary">{title}</h2>
+            {leading && <div className="shrink-0">{leading}</div>}
+            <div>
+                <p className="text-sm font-medium">{title}</p>
+                {description && <p className="text-xs text-secondary mt-0.5">{description}</p>}
+            </div>
         </div>
-        <div className="flex gap-3">
-          {actions}
+        <div className="flex items-center gap-4">
+            {meta && <div className="text-xs text-secondary">{meta}</div>}
+            {trailing}
         </div>
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-6 md:p-12 w-full">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const Drawer: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-}> = ({ isOpen, onClose, title, children, footer }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="relative w-full max-w-md h-full bg-bg shadow-2xl border-l border-border animate-in slide-in-from-right duration-300 flex flex-col">
-        <div className="flex items-center justify-between px-6 py-5 bg-white border-b border-border">
-          <h2 className="text-lg font-medium text-primary">{title}</h2>
-          <button onClick={onClose} className="text-secondary hover:text-primary"><X size={20}/></button>
-        </div>
-        <div className="flex-1 p-6 bg-white overflow-y-auto">
-          {children}
-        </div>
-        {footer && (
-          <div className="px-6 py-4 bg-gray-50 border-t border-border flex justify-end gap-3">
-            {footer}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export const Dropdown: React.FC<{
-  trigger: React.ReactNode;
-  items: { label: string; onClick?: () => void; danger?: boolean }[];
-}> = ({ trigger, items }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  return (
-    <div className="relative inline-block text-left" ref={ref}>
-      <div onClick={() => setIsOpen(!isOpen)}>
-        {trigger}
-      </div>
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-border shadow-lg z-50 animate-in fade-in zoom-in-95 duration-100">
-          <div className="py-1">
-            {items.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  item.onClick?.();
-                  setIsOpen(false);
-                }}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${item.danger ? 'text-red-600' : 'text-primary'}`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// --- 10. PROFILE ELEMENTS ---
-
-export const CoverImage: React.FC<{ src?: string; alt?: string; className?: string; onEdit?: () => void }> = ({ src, alt, className = '', onEdit }) => (
-  <div className={`relative w-full h-48 sm:h-64 bg-gray-100 border-b border-border overflow-hidden group ${className}`}>
-    {src ? (
-      <img src={src} alt={alt || 'Cover'} className="w-full h-full object-cover" />
-    ) : (
-      <div className="w-full h-full flex items-center justify-center bg-gray-50 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-50"></div>
-    )}
-    {onEdit && (
-       <button 
-         onClick={onEdit}
-         className="absolute top-4 right-4 bg-white/90 border border-border px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-       >
-         Change Cover
-       </button>
-    )}
-  </div>
+    </li>
 );
 
-export const ProfileHeader: React.FC<{
-  coverSrc?: string;
-  avatarSrc?: string;
-  avatarInitials?: string;
-  name: string;
-  subtitle?: string;
-  actions?: React.ReactNode;
-  stats?: React.ReactNode;
-}> = ({ coverSrc, avatarSrc, avatarInitials, name, subtitle, actions, stats }) => (
-  <div className="mb-8">
-    <CoverImage src={coverSrc} />
-    <div className="px-6 sm:px-8 max-w-7xl mx-auto">
-      <div className="relative flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pb-6 border-b border-border">
-        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-12 sm:-mt-16 w-full md:w-auto">
-          <Avatar 
-            src={avatarSrc} 
-            initials={avatarInitials} 
-            size="2xl" 
-            className="border-4 border-white bg-white shadow-sm"
-          />
-          <div className="text-center sm:text-left mb-2">
-            <h1 className="text-3xl font-medium text-primary tracking-tight">{name}</h1>
-            {subtitle && <p className="text-secondary font-mono text-xs mt-1">{subtitle}</p>}
-          </div>
+export const Timeline: React.FC<any> = () => null;
+
+export const Statistic: React.FC<any> = ({ label, value, trend, trendDirection }) => (
+    <div className="p-4 border border-border bg-white">
+        <dt className="text-xs font-medium text-secondary uppercase tracking-wider">{label}</dt>
+        <dd className="mt-2 flex items-baseline justify-between">
+            <span className="text-2xl font-light text-primary">{value}</span>
+            {trend && <span className={`text-xs font-bold ${trendDirection === 'up' ? 'text-green-600' : 'text-red-600'}`}>{trend}</span>}
+        </dd>
+    </div>
+);
+
+export const EmptyState: React.FC<any> = ({ icon: Icon, title, description, action }) => (
+    <div className="text-center py-12 border-2 border-dashed border-border bg-gray-50">
+        {Icon && <Icon className="mx-auto h-12 w-12 text-gray-300 mb-4" />}
+        <h3 className="text-sm font-medium text-primary">{title}</h3>
+        <p className="mt-1 text-sm text-secondary max-w-sm mx-auto mb-6">{description}</p>
+        {action}
+    </div>
+);
+
+export const Rating: React.FC<any> = () => null;
+export const SegmentedControl: React.FC<any> = () => null;
+export const FilterGroup: React.FC<any> = () => null;
+
+// --- 9. PROFILE & LAYOUT BLOCKS ---
+
+export const ProfileHeader: React.FC<any> = ({ coverSrc, avatarSrc, name, subtitle, actions }) => (
+    <div>
+        <div className="h-32 w-full bg-gray-200 overflow-hidden">
+            {coverSrc && <img src={coverSrc} className="w-full h-full object-cover" />}
         </div>
-        
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-          {stats && <div className="flex gap-6 mr-4">{stats}</div>}
-          {actions && <div className="flex gap-2">{actions}</div>}
+        <div className="px-6 pb-6">
+            <div className="relative flex justify-between items-end -mt-10 mb-4">
+                <div className="h-20 w-20 border-4 border-white bg-white overflow-hidden">
+                     <img src={avatarSrc} className="w-full h-full object-cover" />
+                </div>
+                <div className="mb-2">{actions}</div>
+            </div>
+            <div>
+                <h1 className="text-xl font-bold">{name}</h1>
+                <p className="text-sm text-secondary">{subtitle}</p>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 );
 
-export const AttributeGrid: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
-    {children}
-  </div>
+export const AttributeGrid: React.FC<any> = () => null;
+export const AttributeItem: React.FC<any> = () => null;
+export const CoverImage: React.FC<any> = () => null;
+
+export const KanbanColumn: React.FC<any> = ({ title, count, children }) => (
+    <div className="w-72 flex-shrink-0 flex flex-col h-full border-r border-border bg-gray-50/50">
+        <div className="p-3 border-b border-border flex justify-between items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-secondary">{title}</span>
+            <span className="bg-gray-200 text-xs px-1.5 py-0.5 rounded-none font-mono">{count}</span>
+        </div>
+        <div className="p-3 space-y-3 overflow-y-auto flex-1">{children}</div>
+    </div>
 );
 
-export const AttributeItem: React.FC<{ label: string; value: React.ReactNode; icon?: LucideIcon }> = ({ label, value, icon: Icon }) => (
-  <div className="bg-white border border-border p-4 flex items-start gap-3 hover:border-gray-400 transition-colors">
-    {Icon && <Icon size={16} className="text-secondary mt-0.5" />}
-    <div className="min-w-0">
-      <dt className="text-[10px] uppercase tracking-widest text-secondary font-bold mb-1">{label}</dt>
-      <dd className="text-sm font-medium text-primary truncate">{value || '-'}</dd>
-    </div>
-  </div>
-);
-
-// --- 11. WORKFLOW & MEDIA (NEW) ---
-
-export const KanbanColumn: React.FC<{ title: string; count?: number; children: React.ReactNode; onAdd?: () => void }> = ({ title, count, children, onAdd }) => (
-  <div className="flex-1 min-w-[300px] flex flex-col h-full bg-gray-50 border-r border-border last:border-r-0">
-    <div className="p-3 border-b border-border flex justify-between items-center bg-white sticky top-0 z-10">
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-primary">{title}</span>
-        {count !== undefined && <span className="bg-gray-100 text-[10px] font-bold px-1.5 py-0.5 border border-border text-secondary">{count}</span>}
-      </div>
-      {onAdd && (
-        <button onClick={onAdd} className="text-secondary hover:text-primary transition-colors">
-          <Plus size={14} />
-        </button>
-      )}
-    </div>
-    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-      {children}
-    </div>
-  </div>
-);
-
-export const KanbanCard: React.FC<{ 
-  title: string; 
-  tags?: string[]; 
-  assignee?: string; 
-  date?: string; 
-  priority?: 'high' | 'medium' | 'low';
-}> = ({ title, tags, assignee, date, priority }) => (
-  <div className="bg-white border border-border p-3 shadow-sm hover:shadow-md hover:border-primary transition-all cursor-grab active:cursor-grabbing group">
-    <div className="flex justify-between items-start mb-2">
-      {tags && tags.length > 0 && (
+export const KanbanCard: React.FC<any> = ({ title, tags, priority }) => (
+    <div className="bg-white p-3 border border-gray-200 shadow-sm hover:border-primary cursor-pointer">
+        <div className="flex justify-between items-start mb-2">
+            <span className="text-sm font-medium leading-tight">{title}</span>
+        </div>
         <div className="flex gap-1 flex-wrap">
-          {tags.map((t, i) => (
-             <span key={i} className="text-[9px] uppercase font-bold bg-gray-100 px-1.5 py-0.5 text-secondary">{t}</span>
-          ))}
+            {priority === 'high' && <span className="h-1.5 w-8 bg-red-500 mb-2 block" />}
+            {tags?.map((t: string) => <span key={t} className="text-[10px] bg-gray-100 px-1.5 py-0.5 border border-gray-200">{t}</span>)}
         </div>
-      )}
-      {priority === 'high' && <div className="w-2 h-2 rounded-full bg-red-500" title="High Priority" />}
     </div>
-    <h4 className="text-sm font-medium text-primary mb-3 leading-snug">{title}</h4>
-    <div className="flex justify-between items-center mt-2 pt-2 border-t border-dashed border-gray-100">
-      <div className="flex items-center gap-2">
-         {assignee ? (
-           <Avatar initials={assignee} size="sm" className="w-5 h-5 text-[9px]" />
-         ) : (
-           <div className="w-5 h-5 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
-             <User size={10} className="text-gray-300" />
-           </div>
-         )}
-      </div>
-      {date && <span className="text-[10px] text-secondary font-mono">{date}</span>}
-    </div>
-  </div>
 );
 
-export const CommentItem: React.FC<{
-  author: string;
-  avatar?: string;
-  initials?: string;
-  date: string;
-  content: string;
-  replies?: number;
-}> = ({ author, avatar, initials, date, content, replies }) => (
-  <div className="flex gap-3 group">
-    <Avatar src={avatar} initials={initials} size="md" className="mt-1" />
-    <div className="flex-1">
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-primary">{author}</span>
-          <span className="text-[10px] text-secondary">{date}</span>
+export const CommentItem: React.FC<any> = () => null;
+
+export const FileCard: React.FC<any> = ({ name, size, type, onDownload }) => (
+    <div className="flex items-center justify-between p-3 border border-border bg-white">
+        <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-gray-100 flex items-center justify-center border border-gray-200">
+                <File className="text-secondary" size={20} />
+            </div>
+            <div>
+                <p className="text-sm font-medium">{name}</p>
+                <p className="text-xs text-secondary">{size} • {type}</p>
+            </div>
         </div>
-      </div>
-      <div className="text-sm text-primary mb-2 bg-gray-50 border border-border p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl relative before:absolute before:top-0 before:-left-1.5 before:w-3 before:h-3 before:bg-gray-50 before:border-l before:border-t before:border-border before:-rotate-45 before:content-['']">
-        {content}
-      </div>
-      <div className="flex items-center gap-4">
-        <button className="text-[10px] font-bold uppercase tracking-wider text-secondary hover:text-primary">Reply</button>
-        {replies ? <span className="text-[10px] text-secondary">{replies} Replies</span> : null}
-      </div>
+        <button onClick={onDownload} className="text-gray-400 hover:text-primary"><Download size={16}/></button>
     </div>
-  </div>
 );
 
-export const FileCard: React.FC<{
-  name: string;
-  size: string;
-  type: string;
-  onDownload?: () => void;
-}> = ({ name, size, type, onDownload }) => (
-  <div className="flex items-center gap-3 p-3 border border-border bg-white hover:bg-gray-50 transition-colors group">
-    <div className="w-10 h-10 bg-gray-100 border border-border flex items-center justify-center shrink-0">
-      <File size={20} className="text-secondary" />
+// --- 10. E-COMMERCE & CHARTS ---
+
+export const ColorPalette: React.FC<any> = ({ colors }) => (
+    <div className="grid grid-cols-2 gap-4">
+        {colors.map((c: any) => (
+            <div key={c.name} className="flex gap-3 items-center">
+                <div className="h-10 w-10 border border-gray-200 shadow-sm" style={{ backgroundColor: c.value }} />
+                <div>
+                    <p className="text-sm font-bold">{c.name}</p>
+                    <p className="text-xs text-secondary font-mono">{c.value}</p>
+                </div>
+            </div>
+        ))}
     </div>
-    <div className="flex-1 min-w-0">
-      <div className="text-sm font-medium text-primary truncate">{name}</div>
-      <div className="text-[10px] text-secondary uppercase flex items-center gap-2">
-        <span>{type}</span>
-        <span className="w-1 h-1 bg-gray-300 rounded-full" />
-        <span>{size}</span>
-      </div>
+);
+
+export const ProductCard: React.FC<any> = ({ image, title, price, originalPrice, tag }) => (
+    <div className="group border border-border bg-white hover:border-gray-400 transition-all">
+        <div className="relative aspect-square bg-gray-100 overflow-hidden">
+            <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            {tag && <span className="absolute top-2 left-2 bg-black text-white text-xs font-bold px-2 py-1">{tag}</span>}
+        </div>
+        <div className="p-4">
+            <h3 className="text-sm font-medium">{title}</h3>
+            <div className="mt-1 flex items-baseline gap-2">
+                <span className="text-sm font-bold">${price}</span>
+                {originalPrice && <span className="text-xs text-secondary line-through">${originalPrice}</span>}
+            </div>
+        </div>
     </div>
-    {onDownload && (
-      <button onClick={onDownload} className="text-secondary hover:text-primary p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Download size={16} />
-      </button>
-    )}
-  </div>
+);
+
+export const QuantitySelector: React.FC<any> = () => null;
+
+export const CartItem: React.FC<any> = ({ image, title, variant, price, quantity, onQuantityChange, onRemove }) => (
+    <div className="flex gap-4 py-4 border-b border-gray-100 last:border-0">
+        <div className="h-20 w-20 bg-gray-100 border border-border shrink-0">
+            <img src={image} className="w-full h-full object-cover" />
+        </div>
+        <div className="flex-1 flex flex-col justify-between">
+            <div>
+                <div className="flex justify-between items-start">
+                    <h4 className="text-sm font-medium">{title}</h4>
+                    <span className="text-sm font-bold">${price}</span>
+                </div>
+                <p className="text-xs text-secondary">{variant}</p>
+            </div>
+            <div className="flex justify-between items-center mt-2">
+                 <div className="flex items-center border border-border">
+                    <button className="px-2 py-1 hover:bg-gray-50" onClick={() => onQuantityChange(Math.max(1, quantity - 1))}>-</button>
+                    <span className="px-2 text-xs font-medium w-8 text-center">{quantity}</span>
+                    <button className="px-2 py-1 hover:bg-gray-50" onClick={() => onQuantityChange(quantity + 1)}>+</button>
+                 </div>
+                 <button onClick={onRemove} className="text-xs text-secondary underline hover:text-red-500">Remove</button>
+            </div>
+        </div>
+    </div>
+);
+
+export const OrderSummary: React.FC<any> = ({ items, action }) => (
+    <div className="p-4 bg-gray-50 border-t border-border">
+        <div className="space-y-2">
+            {items.map((i: any, idx: number) => (
+                <div key={idx} className={`flex justify-between text-sm ${i.isTotal ? 'font-bold pt-2 border-t border-gray-200 mt-2' : 'text-secondary'}`}>
+                    <span>{i.label}</span>
+                    <span>{i.value}</span>
+                </div>
+            ))}
+        </div>
+        {action}
+    </div>
+);
+
+export const BarChart: React.FC<any> = ({ data }) => {
+    const max = Math.max(...data.map((d: any) => d.value));
+    return (
+        <div className="flex items-end justify-between h-32 gap-1 pt-4">
+            {data.map((d: any, i: number) => (
+                <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
+                    <div className="w-full bg-primary/90 transition-all hover:bg-primary relative" style={{ height: `${(d.value / max) * 100}%` }}>
+                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">{d.value}</div>
+                    </div>
+                    <span className="text-[10px] text-secondary font-mono uppercase">{d.label}</span>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export const Sparkline: React.FC<any> = ({ data, color }) => {
+    const max = Math.max(...data);
+    const min = Math.min(...data);
+    const range = max - min;
+    const points = data.map((d: number, i: number) => {
+        const x = (i / (data.length - 1)) * 100;
+        const y = 100 - ((d - min) / range) * 100;
+        return `${x},${y}`;
+    }).join(' ');
+    return (
+        <div className="h-12 w-full">
+            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <polyline fill="none" stroke={color} strokeWidth="2" points={points} vectorEffect="non-scaling-stroke" />
+            </svg>
+        </div>
+    );
+};
+
+export const ImageGallery: React.FC<any> = () => null;
+
+export const PricingCard: React.FC<any> = ({ tier, price, features, isPopular, action }) => (
+    <div className={`p-6 border ${isPopular ? 'border-primary shadow-lg' : 'border-border bg-white'}`}>
+        {isPopular && <div className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Most Popular</div>}
+        <h3 className="text-xl font-medium">{tier}</h3>
+        <div className="mt-4 mb-6">
+            <span className="text-4xl font-light">{price}</span>
+            <span className="text-secondary text-sm">/month</span>
+        </div>
+        <ul className="space-y-3 mb-8">
+            {features.map((f: string) => (
+                <li key={f} className="flex items-start gap-3 text-sm">
+                    <Check size={16} className="text-green-600 mt-0.5" />
+                    <span>{f}</span>
+                </li>
+            ))}
+        </ul>
+        {action}
+    </div>
+);
+
+export const Testimonial: React.FC<any> = ({ quote, author, role, avatar }) => (
+    <div className="p-8 border border-border bg-gray-50">
+        <Quote className="text-gray-300 mb-4" size={32} />
+        <p className="text-lg font-light italic mb-6">"{quote}"</p>
+        <div className="flex items-center gap-3">
+            <img src={avatar} className="h-10 w-10 border border-white" />
+            <div>
+                <p className="text-sm font-bold">{author}</p>
+                <p className="text-xs text-secondary">{role}</p>
+            </div>
+        </div>
+    </div>
+);
+
+export const FeatureGrid: React.FC<any> = ({ features }) => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {features.map((f: any, i: number) => (
+            <div key={i} className="p-4 border border-border bg-white hover:border-gray-400 transition-colors">
+                <div className="h-10 w-10 bg-gray-100 flex items-center justify-center mb-4 text-primary">
+                    <f.icon size={20} />
+                </div>
+                <h4 className="font-bold text-sm mb-2">{f.title}</h4>
+                <p className="text-xs text-secondary leading-relaxed">{f.description}</p>
+            </div>
+        ))}
+    </div>
 );
