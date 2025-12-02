@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Structural Design System</title>
+    <title>Health Analytics Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -14,13 +14,13 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              bg: '#F8F8F8',
-              card: '#FFFFFF',
-              primary: '#111111',
-              secondary: '#666666',
-              border: '#E0E0E0',
-              inputBorder: '#E5E5E5',
-              icon: '#999999',
+              page: '#F5F5F5',
+              'card-dark': '#111111',
+              'border-dark': '#1C1C1C',
+              'text-subtle': '#999999',
+              'status-green': '#26D07C',
+              'status-yellow': '#E5D247',
+              'status-purple': '#CA47FF',
             },
             borderRadius: {
               DEFAULT: '0px',
@@ -30,6 +30,8 @@
               'lg': '0px',
               'xl': '0px',
               '2xl': '0px',
+              '3xl': '0px',
+              'full': '9999px', // Keep full for circles (status dots) if needed, or set to 0px for strict square dots
             }
           }
         }
@@ -46,7 +48,7 @@
 }
 </script>
 </head>
-  <body class="bg-bg text-primary antialiased">
+  <body class="bg-page text-black antialiased selection:bg-black selection:text-white">
     <div id="root"></div>
   </body>
 </html>

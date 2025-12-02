@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import HealthDashboard from './components/HealthDashboard';
 import StyleGuide from './components/StyleGuide';
 
 const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<'dashboard' | 'styleguide'>('dashboard');
+
   return (
-    <div className="min-h-screen bg-bg font-sans text-primary">
-      <StyleGuide />
-    </div>
+    <>
+      {currentView === 'dashboard' ? (
+        <HealthDashboard onNavigateToDesignSystem={() => setCurrentView('styleguide')} />
+      ) : (
+        <StyleGuide onNavigateToDashboard={() => setCurrentView('dashboard')} />
+      )}
+    </>
   );
 };
 

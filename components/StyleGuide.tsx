@@ -80,11 +80,13 @@ import {
   ImageGallery,
   PricingCard,
   Testimonial,
-  FeatureGrid
+  FeatureGrid,
+  Metric,
+  RangeVisualizer
 } from './DesignSystem';
-import { Mail, Search, Save, Trash2, ArrowRight, User, Settings, Lock, Info, MoreVertical, Sliders, LayoutDashboard, FileText, Bell, Database, Palette, Type, Box, Copy, Briefcase, MapPin, Globe, CreditCard, ChevronLeft, ChevronRight, Hash, Star, Layout, Menu, Home, ShoppingBag, Zap, Shield, BarChart2, Download } from 'lucide-react';
+import { Mail, Search, Save, Trash2, ArrowRight, User, Settings, Lock, Info, MoreVertical, Sliders, LayoutDashboard, FileText, Bell, Database, Palette, Type, Box, Copy, Briefcase, MapPin, Globe, CreditCard, ChevronLeft, ChevronRight, Hash, Star, Layout, Menu, Home, ShoppingBag, Zap, Shield, BarChart2, Download, Scale, Moon, Activity, Heart, Flame, Server, DollarSign } from 'lucide-react';
 
-const StyleGuide: React.FC = () => {
+const StyleGuide: React.FC<{ onNavigateToDashboard?: () => void }> = ({ onNavigateToDashboard }) => {
   const [toggleState, setToggleState] = useState(false);
   const [checkboxState, setCheckboxState] = useState(true);
   const [radioState, setRadioState] = useState('option1');
@@ -138,8 +140,15 @@ const StyleGuide: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Badge>v3.6.0</Badge>
-            <Text variant="tiny">Ready for Production</Text>
+            {onNavigateToDashboard && (
+                <Button onClick={onNavigateToDashboard} variant="outline" icon={LayoutDashboard} className="mb-2">
+                    Back to Dashboard
+                </Button>
+            )}
+            <div className="flex flex-col items-end">
+                <Badge>v3.7.0</Badge>
+                <Text variant="tiny">Ready for Production</Text>
+            </div>
           </div>
         </div>
       </div>
@@ -806,6 +815,50 @@ module.exports = {
                         { icon: BarChart2, title: 'Analytics Ready', description: 'Built-in tracking for user interactions.' },
                      ]} />
                   </div>
+               </div>
+            </section>
+        </Accordion>
+
+        {/* ANALYTICS */}
+        <Accordion title="12. Analytics">
+            <section className="space-y-12 animate-in fade-in">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Universal Example 1: Server Status */}
+                  <Metric 
+                     label="CPU Usage" 
+                     value="92%" 
+                     icon={<Server size={16}/>}
+                     subtext="High load detected"
+                     indicator="Critical" 
+                     indicatorIntent="danger"
+                     variant="dark"
+                  />
+                  {/* Universal Example 2: Financial */}
+                  <Metric 
+                     label="Monthly Budget" 
+                     value="$2,450" 
+                     icon={<DollarSign size={16}/>}
+                     subtext="15% remaining"
+                     indicator="On Track" 
+                     indicatorIntent="success"
+                  />
+                  {/* Universal Example 3: Range Visualization */}
+                  <Card>
+                     <div className="space-y-4">
+                        <Label>Goal Tracking</Label>
+                        <RangeVisualizer 
+                           label="Q4 Sales Target"
+                           subLabel="Regional Team A"
+                           value="750"
+                           unit="Units"
+                           indicator="Ahead"
+                           intent="success"
+                           min={0}
+                           max={1000}
+                           current={750}
+                        />
+                     </div>
+                  </Card>
                </div>
             </section>
         </Accordion>

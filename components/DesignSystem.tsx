@@ -71,14 +71,23 @@ export const Card: React.FC<{
   className?: string;
   noPadding?: boolean;
   onClick?: () => void;
-}> = ({ children, className = '', noPadding = false, onClick }) => (
-  <div 
-    onClick={onClick}
-    className={`bg-card border border-border shadow-none transition-all hover:border-gray-400 ${noPadding ? '' : 'p-5'} ${onClick ? 'cursor-pointer active:bg-gray-50' : ''} ${className}`}
-  >
-    {children}
-  </div>
-);
+  variant?: 'default' | 'dark' | 'gradient';
+}> = ({ children, className = '', noPadding = false, onClick, variant = 'default' }) => {
+    const variants: Record<string, string> = {
+        default: "bg-card border-border text-primary",
+        dark: "bg-[#111] border-[#222] text-white",
+        gradient: "bg-gradient-to-br from-gray-900 to-black border-gray-800 text-white"
+    };
+
+    return (
+      <div 
+        onClick={onClick}
+        className={`border shadow-none transition-all hover:border-gray-400 ${variants[variant] || variants.default} ${noPadding ? '' : 'p-5'} ${onClick ? 'cursor-pointer active:opacity-95' : ''} ${className}`}
+      >
+        {children}
+      </div>
+    );
+};
 
 export const Divider: React.FC<any> = () => <hr className="border-t border-border my-6" />;
 export const Stack: React.FC<any> = ({ children, className }) => <div className={`flex flex-col gap-4 ${className}`}>{children}</div>;
@@ -803,3 +812,82 @@ export const FeatureGrid: React.FC<any> = ({ features }) => (
         ))}
     </div>
 );
+
+// --- 12. ANALYTICS ---
+
+export const Metric: React.FC<any> = ({ label, value, icon, subtext, indicator, indicatorIntent = 'neutral', variant = 'default' }) => {
+    const intentStyles: any = {
+        success: variant === 'dark' ? 'border-green-800 text-green-400 bg-green-900/30' : 'border-green-200 bg-green-50 text-green-700',
+        warning: variant === 'dark' ? 'border-yellow-800 text-yellow-400 bg-yellow-900/30' : 'border-yellow-200 bg-yellow-50 text-yellow-700',
+        danger: variant === 'dark' ? 'border-red-800 text-red-400 bg-red-900/30' : 'border-red-200 bg-red-50 text-red-700',
+        neutral: variant === 'dark' ? 'border-gray-700 bg-gray-800 text-gray-300' : 'border-gray-200 bg-gray-50 text-gray-600',
+    };
+
+    return (
+        <div className={`p-6 border flex flex-col justify-between h-full ${variant === 'dark' ? 'bg-[#111] border-[#222] text-white' : 'bg-white border-border text-primary'}`}>
+            <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-2">
+                    {icon && <span className={variant === 'dark' ? 'text-gray-400' : 'text-icon'}>{icon}</span>}
+                    <span className={`text-xs font-bold uppercase tracking-widest ${variant === 'dark' ? 'text-gray-400' : 'text-secondary'}`}>{label}</span>
+                </div>
+                {indicator && (
+                    <div className={`text-xs font-bold px-1.5 py-0.5 border ${intentStyles[indicatorIntent]}`}>
+                        {indicator}
+                    </div>
+                )}
+            </div>
+            <div>
+                <div className="text-3xl font-light mb-1">{value}</div>
+                <div className={`text-xs ${variant === 'dark' ? 'text-gray-500' : 'text-secondary'}`}>{subtext}</div>
+            </div>
+        </div>
+    );
+};
+
+export const RangeVisualizer: React.FC<any> = ({ label, subLabel, value, unit, indicator, intent = 'neutral', min, max, current }) => {
+    const range = max - min;
+    const percentage = Math.min(Math.max(((current - min) / range) * 100, 0), 100);
+    
+    const intentColors: any = {
+        success: "bg-green-500",
+        warning: "bg-yellow-500",
+        danger: "bg-red-500",
+        neutral: "bg-gray-400"
+    };
+
+    const intentText: any = {
+        success: "text-green-600",
+        warning: "text-yellow-600",
+        danger: "text-red-600",
+        neutral: "text-gray-500"
+    }
+
+    return (
+        <div className="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">
+            <div className="w-1/3 min-w-[120px]">
+                <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm text-primary">{label}</span>
+                </div>
+                {subLabel && <div className="text-xs text-secondary mt-0.5">{subLabel}</div>}
+            </div>
+            
+            <div className="flex-1 px-2">
+                <div className="relative h-1.5 bg-gray-100 w-full overflow-hidden">
+                    {/* Background track for valid range, customized by intent if needed */}
+                    <div className={`absolute left-0 h-full opacity-20 ${intentColors[intent]}`} style={{ width: '100%' }}></div>
+                </div>
+                <div className="relative w-full h-0">
+                    <div 
+                        className="absolute top-[-7px] h-3 w-1 bg-black"
+                        style={{ left: `${percentage}%` }}
+                    />
+                </div>
+            </div>
+
+            <div className="w-24 text-right">
+                <div className="font-mono text-sm font-medium">{value} <span className="text-xs text-secondary">{unit}</span></div>
+                <div className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${intentText[intent]}`}>{indicator}</div>
+            </div>
+        </div>
+    );
+};
